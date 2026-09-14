@@ -187,13 +187,15 @@ class ActorCriticAgent(Agent):
         """
         Write the agents data for one episodes to the HDF5 file.
         """
-        n_new_timesteps = 1
-
         self.data_holder['features'].append(self.trajectory.features)
         self.data_holder['actions'].append(self.trajectory.actions)
         if not deployment:
             self.data_holder['log_probs'].append(self.trajectory.log_probs)
         self.data_holder['rewards'].append(self.trajectory.rewards)
+        # Derived from the buffer itself (not hardcoded to 1) so this stays
+        # correct if write_to_h5 is ever called with more than one
+        # unflushed episode buffered up.
+        n_new_timesteps = len(self.data_holder['actions'])
         with h5py.File(self.h5_filename.as_posix(), 'a') as h5_outfile:
             agent_group = h5_outfile[f"Agent_{self.particle_type}"]
 
