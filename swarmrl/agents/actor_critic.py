@@ -187,7 +187,7 @@ class ActorCriticAgent(Agent):
         """
         Write the agents data for one episodes to the HDF5 file.
         """
-        n_new_timesteps = 1 
+        n_new_timesteps = 1
 
         self.data_holder['features'].append(self.trajectory.features)
         self.data_holder['actions'].append(self.trajectory.actions)
@@ -203,8 +203,15 @@ class ActorCriticAgent(Agent):
                 values = np.stack(self.data_holder[key], axis=0)
                 dataset.resize(self.write_idx + values.shape[0], axis = 0)
                 dataset[self.write_idx : self.write_idx + values.shape[0]] = values
-        
-        self.h5_time_steps_written =+ n_new_timesteps
+
+        # Advance past what was just written, and drop it from memory so the
+        # next call only writes its own new increment (not the full history
+        # written so far).
+        self.write_idx += n_new_timesteps
+        for key in self.data_holder:
+            self.data_holder[key] = []
+
+        self.h5_time_steps_written += n_new_timesteps
 
     
     def update_agent(self) -> tuple:
