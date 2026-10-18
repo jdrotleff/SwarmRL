@@ -25,9 +25,9 @@ class GradientSensing(Task, ABC):
 
     def __init__(
         self,
-        source: np.ndarray = np.array([0, 0, 0]),
+        source: onp.ndarray = None,
         decay_function: callable = None,
-        box_length: np.ndarray = np.array([1.0, 1.0, 0.0]),
+        box_length: onp.ndarray = None,
         reward_scale_factor: int = 10,
         particle_type: int = 0,
     ):
@@ -50,6 +50,8 @@ class GradientSensing(Task, ABC):
 
         """
         super().__init__(particle_type=particle_type)
+        source = np.array([0, 0, 0]) if source is None else source
+        box_length = np.array([1.0, 1.0, 0]) if box_length is None else box_length
         self.source = source / box_length
         self.decay_fn = decay_function
         self.reward_scale_factor = reward_scale_factor
